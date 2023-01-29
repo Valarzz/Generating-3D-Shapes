@@ -10,8 +10,10 @@ Specifically, the task tries to generate certain 3D shapes from a vector followi
 The input I choose here is a randomly generated vector following Gaussian distribution. To stabilize training, I used 
 [Wasserstein GAN](https://arxiv.org/abs/1701.07875). The generator of W-GAN can be designed in two ways, the first is to directly generate a 3D shape, then use discriminator to tell the difference between the fake 3D shape and real 3D shape; the second is to generate a latent feature, for example, a z-dimension vector, and use the discriminator to tell the difference between the fake latent feature and the true latent feature which can be obtained by using Auto-encoder.
 
+Direct-GAN:
 ![](imgs/GAN.png)
 
+Latent-GAN:
 ![](imgs/latentGAN.png)
 
 ## Result
