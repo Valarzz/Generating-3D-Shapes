@@ -1,11 +1,14 @@
 import torch
 import numpy as np
-from GAN3Dnets import gen, dis
+
+import ae
+from GAN3Dnets import gen, dis, latentG, latentD
 import param
 from torch.utils.data import Dataset
 import os
 from torch.utils.tensorboard import SummaryWriter
 import torchvision
+from ae import aeNet
 
 
 class data3d(Dataset):
@@ -28,15 +31,24 @@ class data3d(Dataset):
 class trainer():
     def __init__(self, dataload):
         self.dataloader = dataload
-        self.D = dis().float().to(param.device)
-        self.G = gen().float().to(param.device)
+        if param.latent:
+            self.D = latentD().float().to(param.device)
+            self.G = latentG().float().to(param.device)
+        else:
+            self.D = dis().float().to(param.device)
+            self.G = gen().float().to(param.device)
         self.g_opt = torch.optim.RMSprop(self.G.parameters(), lr=param.g_lr)
         self.d_opt = torch.optim.RMSprop(self.D.parameters(), lr=param.d_lr)
         self.writer = SummaryWriter('tensorboard_save')
         self.step = 0
         self.epoch = 0
-        if param.load == True:
+        if param.load:
             self.loadM(param.modelPath)
+        if param.latent:
+            self.ae = aeNet().to(param.device)
+            checkpoint = torch.load(param.latentPath)
+            self.ae.en.load_state_dict(checkpoint['G_state_dict'])
+            self.ae.de.load_state_dict(checkpoint['D_state_dict'])
 
     def generateZ(self, batch):
         # batch = param.batch_size
@@ -52,6 +64,8 @@ class trainer():
     def train_dis(self, truedata):
         z = self.generateZ(param.batch_size)
         z_gen = self.G(z)
+        if param.latent:
+            truedata = self.ae.en(truedata)
         real = self.D(truedata)
         fake = self.D(z_gen)
         lossD = -(torch.mean(real) - torch.mean(fake))
@@ -109,6 +123,8 @@ class trainer():
         self.D.eval()
         with torch.no_grad():
             fake = self.G(self.generateZ(1))
+            if param.latent:
+                fake = self.ae.de(fake)
             np.save(path, fake.cpu().numpy())
         #     # take out (up to) 32 examples
         #     img_grid_real = torchvision.utils.make_grid(

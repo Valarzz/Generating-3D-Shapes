@@ -27,13 +27,18 @@ The Discriminator loss is
 For generating latent feature, I first trained the AE network 3 hours on RTX-3070-Laptop. I divided the dataset into a training-set and a test-set in the ratio of 8:2, the loss function is as follows, where the red line is the test loss, and the blue line is the training loss.
 ![](imgs/aeloss.png)
 
+Then, I trained the W-GAN networks for 3 hours on RTX-3070-Laptop, the result is as follows
+![](imgs/latentresult.png)
+
+It can be seen that using latent space to train GAN model can reduce the training time and get better result!
+
 ## Run
 
 ### Prepare Data
 First download the dataset from [link](https://3dshapenets.cs.princeton.edu/), then move the `volumetric_data` under this project, and run `mat2np.py`, this will convert the `.mat` file to numpy array and generate a directory named `airplaneData` to store them.
 
 ### Train direct GAN
-Run `directGAN.py`, this will generate three directories named `output`, `checkpoint`, `tensorboard_save` to save fake 3D shapes, model parameters, and loss value, respectively.
+Run `main.py`, this will generate three directories named `output`, `checkpoint`, `tensorboard_save` to save fake 3D shapes, model parameters, and loss value, respectively.
 
 Run `show3D.py` to visualize some generated shapes.
 
@@ -42,5 +47,7 @@ Run `tensorboard --logdir=tensorboard_save` to see the training loss.
 ### Train latent GAN
 Run `trainae.py` to train the encoder and decoder networks.
 
-Run `tensorboard --logdir=tensorboard_aesave` to see the training loss.
+Modify line 11 in `param.py` to `latent = True`. Then, run `main.py`.
+
+Run `tensorboard --logdir=tensorboard_aesave` to see the training loss, and run `show3D.py` to visualize some generated shapes.
 

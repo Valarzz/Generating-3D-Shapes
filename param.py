@@ -5,9 +5,11 @@ epochs = 200
 batch_size = 64
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 TrainNew = True
-load = True
+load = False
 modelPath = "checkpoint/checkpoint_027601_lossD_{lossD}_lossG_{lossG}" + ".pth"
 # device = torch.device('cpu')
+latent = False
+latentPath = "AE_M/190.pth"
 
 # noise generate
 z_dim = 200
